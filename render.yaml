@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: tour-ops-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    envVars:
+      - key: APP_DATA_DIR
+        value: data
+      - key: WECOM_CALLBACK_TOKEN
+        sync: false
+      - key: WECOM_CORP_ID
+        sync: false
+      - key: WECOM_AGENT_ID
+        sync: false
+      - key: WECOM_AGENT_SECRET
+        sync: false

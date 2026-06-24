@@ -1,0 +1,1529 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>入境游团队报账审核台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #637083;
+      --line: #d9e1e8;
+      --soft: #f4f7f9;
+      --panel: #ffffff;
+      --brand: #0f766e;
+      --brand-2: #1f7a9a;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --good: #047857;
+      --shadow: 0 12px 28px rgba(21, 38, 54, 0.09);
+      --radius: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: #eef3f5;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    button:hover { border-color: #8aa3b5; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #12313a;
+      color: #eef8f7;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 5px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .brand strong {
+      font-size: 21px;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      color: #b9d5d2;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .tour-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tour-item {
+      width: 100%;
+      text-align: left;
+      color: #eef8f7;
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.16);
+      padding: 10px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .tour-item.active {
+      background: #f8fbfc;
+      color: var(--ink);
+      border-color: transparent;
+    }
+
+    .tour-item span {
+      color: inherit;
+      opacity: 0.72;
+      font-size: 12px;
+    }
+
+    .sidebar-actions {
+      margin-top: auto;
+      display: grid;
+      gap: 8px;
+    }
+
+    .sidebar-actions button {
+      background: transparent;
+      color: #eef8f7;
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .user-box {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .user-box label {
+      color: #b9d5d2;
+    }
+
+    .user-box select {
+      background: #f8fbfc;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+      padding: 0 14px;
+    }
+
+    .danger {
+      color: var(--bad);
+      border-color: #f1b7b7;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) 360px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      padding: 15px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input, select, textarea {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px 10px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .input-action {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .input-action button {
+      padding: 0 10px;
+      white-space: nowrap;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 76px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fbfcfd;
+      min-height: 82px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .metric strong {
+      font-size: 20px;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .metric.good strong { color: var(--good); }
+    .metric.bad strong { color: var(--bad); }
+
+    .subtle-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1180px;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      background: #f6f8fa;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td input, td select {
+      padding: 6px 8px;
+      min-height: 32px;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .stack-actions {
+      display: grid;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      min-height: 32px;
+      padding: 0;
+    }
+
+    .mini-btn {
+      min-height: 30px;
+      padding: 0 8px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .attachment-list {
+      display: grid;
+      grid-template-columns: repeat(2, 48px);
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .attachment {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #f6f8fa;
+      position: relative;
+    }
+
+    .attachment img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .attachment button {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      min-height: 18px;
+      width: 18px;
+      padding: 0;
+      border-radius: 0 0 0 6px;
+      border-color: rgba(0,0,0,0.12);
+      background: rgba(255,255,255,0.92);
+      color: var(--bad);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .file-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 5px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e7f3f1;
+      color: #0f5f59;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tag.warn {
+      background: #fff4de;
+      color: var(--warn);
+    }
+
+    .tag.bad {
+      background: #fee2e2;
+      color: var(--bad);
+    }
+
+    .checks {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 9px;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .check input {
+      width: 16px;
+      margin-top: 2px;
+    }
+
+    .audit-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .audit-item {
+      border: 1px solid var(--line);
+      border-left-width: 4px;
+      border-radius: var(--radius);
+      padding: 10px;
+      background: #fff;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .audit-item.bad { border-left-color: var(--bad); }
+    .audit-item.warn { border-left-color: var(--warn); }
+    .audit-item.good { border-left-color: var(--good); }
+
+    .audit-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .section-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-line {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        display: block;
+      }
+      .tour-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 14px;
+      }
+      .sidebar-actions {
+        margin-top: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .main { padding: 14px; }
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .fields, .metrics, .tour-list, .sidebar-actions {
+        grid-template-columns: 1fr;
+      }
+      .panel-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .sidebar, .topbar .actions, .row-actions, .panel-head button, .no-print { display: none !important; }
+      .app, .layout { display: block; }
+      .main { padding: 0; }
+      .panel { box-shadow: none; page-break-inside: avoid; margin-bottom: 12px; }
+      table { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <strong>团队报账审核台</strong>
+        <span>为入境游旅行社整理每团收入、成本、完团报销与审核风险。</span>
+      </div>
+      <div class="user-box">
+        <label>当前登录
+          <select id="currentUser"></select>
+        </label>
+        <span id="userHint">本机身份用于记录经办人。</span>
+      </div>
+      <div id="tourList" class="tour-list"></div>
+      <div class="sidebar-actions">
+        <button id="addTourBtn">新建团队</button>
+        <button id="resetDemoBtn">恢复示例</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">团队报账</h1>
+          <p id="pageSub">录入后会自动核算毛利、票据缺口、异常支出与审核结论。</p>
+        </div>
+        <div class="actions">
+          <button id="exportCsvBtn">导出明细</button>
+          <button id="exportJsonBtn">备份数据</button>
+          <button id="printBtn" class="primary">打印审核单</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="section-stack">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>团队档案</h2>
+              <span id="statusTag" class="tag"></span>
+            </div>
+            <div class="panel-body grid">
+              <div class="fields">
+                <label>团号
+                  <span class="input-action">
+                    <input id="tourCode" placeholder="TB-20260712-001">
+                    <button id="autoCodeBtn" type="button">自动</button>
+                  </span>
+                </label>
+                <label>团名
+                  <input id="tourName" placeholder="欧洲商务考察团">
+                </label>
+                <label>客源地
+                  <input id="market" placeholder="德国 / 美国 / 新加坡">
+                </label>
+                <label>开始日期
+                  <input id="startDate" type="date">
+                </label>
+                <label>结束日期
+                  <input id="endDate" type="date">
+                </label>
+                <label>人数
+                  <input id="pax" type="number" min="0" step="1">
+                </label>
+                <label>计调
+                  <input id="operator" placeholder="负责人姓名">
+                </label>
+                <label>导游
+                  <input id="guide" placeholder="导游姓名">
+                </label>
+                <label>币种
+                  <select id="currency">
+                    <option value="CNY">人民币 CNY</option>
+                    <option value="USD">美元 USD</option>
+                    <option value="EUR">欧元 EUR</option>
+                  </select>
+                </label>
+              </div>
+              <label>备注
+                <textarea id="notes" placeholder="例如：含接送机、酒店现付、部分餐费由客人自理"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>收入与成本概览</h2>
+              <button id="addLineBtn" class="primary">新增明细</button>
+            </div>
+            <div class="panel-body grid">
+              <div class="metrics">
+                <div class="metric">
+                  <span>总收入</span>
+                  <strong id="totalIncome">0</strong>
+                </div>
+                <div class="metric">
+                  <span>总成本</span>
+                  <strong id="totalCost">0</strong>
+                </div>
+                <div class="metric" id="profitMetric">
+                  <span>毛利</span>
+                  <strong id="grossProfit">0</strong>
+                </div>
+                <div class="metric">
+                  <span>人均毛利</span>
+                  <strong id="profitPerPax">0</strong>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>类型</th>
+                      <th>类别</th>
+                      <th>摘要</th>
+                      <th>金额</th>
+                      <th>供应商/付款方</th>
+                      <th>票据</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lineBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>完团报销</h2>
+                <p class="subtle-note">记录导游、计调或员工完团后的垫付款、审核、付款截图和票据附件。</p>
+              </div>
+              <button id="addReimbursementBtn" class="primary">新增报销</button>
+            </div>
+            <div class="panel-body grid">
+              <div class="metrics">
+                <div class="metric">
+                  <span>应报销</span>
+                  <strong id="reimburseTotal">0</strong>
+                </div>
+                <div class="metric">
+                  <span>已付款</span>
+                  <strong id="reimbursePaid">0</strong>
+                </div>
+                <div class="metric" id="reimbursePendingMetric">
+                  <span>待付款</span>
+                  <strong id="reimbursePending">0</strong>
+                </div>
+                <div class="metric">
+                  <span>报销笔数</span>
+                  <strong id="reimburseCount">0</strong>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>报销人</th>
+                      <th>费用类别</th>
+                      <th>发生日期</th>
+                      <th>摘要</th>
+                      <th>金额</th>
+                      <th>票据</th>
+                      <th>审核</th>
+                      <th>付款</th>
+                      <th>附件</th>
+                      <th>备注</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reimbursementBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="section-stack">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>审核结论</h2>
+              <span id="riskTag" class="tag"></span>
+            </div>
+            <div class="panel-body">
+              <div id="auditList" class="audit-list"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>报账清单</h2>
+            </div>
+            <div class="panel-body">
+              <div id="checkList" class="checks"></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.__SERVER_STATE__ = {{ initial_state | tojson }};
+    window.__SERVER_MODE__ = true;
+    const storageKey = "inbound-tour-accounting-v1";
+    const currentUserKey = "inbound-tour-current-user-v1";
+    const teamMembers = ["负责人", "财务", "审核", "计调", "客服", "导游"];
+    const categories = ["团费收入", "酒店", "餐饮", "交通", "门票", "导游", "签证/保险", "其他"];
+    const reimbursementCategories = ["交通垫付", "餐饮垫付", "门票垫付", "停车/过路", "小费/服务", "应急采购", "其他"];
+    const receiptOptions = ["已收票", "待补票", "无票说明", "无需票据"];
+    const statusOptions = ["已审核", "待审核", "需确认"];
+    const reimbursementStatusOptions = ["待付款", "已付款", "驳回", "需确认"];
+    const reimbursementAuditOptions = ["待审核", "审核通过", "驳回", "需补充"];
+    const checklistItems = [
+      "团队合同或确认单已归档",
+      "客人名单、人数与收款记录一致",
+      "酒店、餐饮、交通、门票票据齐全",
+      "导游垫付款已有签字确认",
+      "特殊折扣、免单、现付项目已备注",
+      "毛利率低于预期时已有负责人说明",
+      "完团报销明细已由报销人确认",
+      "完团报销付款状态已由财务更新"
+    ];
+
+    const demoTours = [
+      {
+        id: crypto.randomUUID(),
+        code: "TB-20260712-001",
+        name: "德国企业上海杭州考察团",
+        market: "德国",
+        startDate: "2026-07-12",
+        endDate: "2026-07-18",
+        dateRange: "2026-07-12 至 2026-07-18",
+        pax: 18,
+        operator: "王敏",
+        guide: "陈导",
+        createdBy: "王敏",
+        updatedBy: "财务",
+        currency: "CNY",
+        notes: "含浦东接送机；第 4 天晚餐客人自理。",
+        checks: [true, true, false, true, true, false],
+        reimbursements: [
+          { id: crypto.randomUUID(), claimant: "陈导", category: "停车/过路", date: "2026-07-14", summary: "旅游车停车费及高速零星垫付", amount: 680, receipt: "待补票", auditStatus: "待审核", reviewer: "审核", payStatus: "待付款", payer: "财务", note: "导游已提交付款截图", attachments: [], paymentAttachments: [] },
+          { id: crypto.randomUUID(), claimant: "王敏", category: "应急采购", date: "2026-07-16", summary: "会议矿泉水和接待用品", amount: 420, receipt: "已收票", payStatus: "已付款", note: "已随团费成本归档" }
+        ],
+        lines: [
+          { id: crypto.randomUUID(), kind: "收入", category: "团费收入", summary: "地接团费尾款", amount: 126000, vendor: "Berlin Atlas GmbH", receipt: "无需票据", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "酒店", summary: "上海 3 晚、杭州 2 晚", amount: 53800, vendor: "华庭酒店集团", receipt: "已收票", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "交通", summary: "33 座旅游车 7 天", amount: 18600, vendor: "申城旅游汽车", receipt: "待补票", status: "待审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "餐饮", summary: "团队餐 9 顿", amount: 21420, vendor: "江南宴", receipt: "已收票", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "门票", summary: "博物馆与园林门票", amount: 9720, vendor: "景区窗口", receipt: "无票说明", status: "需确认" },
+          { id: crypto.randomUUID(), kind: "成本", category: "导游", summary: "导游服务费及垫付停车", amount: 6200, vendor: "陈导", receipt: "待补票", status: "待审核" }
+        ]
+      },
+      {
+        id: crypto.randomUUID(),
+        code: "TB-20260803-001",
+        name: "新加坡亲子北京文化团",
+        market: "新加坡",
+        startDate: "2026-08-03",
+        endDate: "2026-08-09",
+        dateRange: "2026-08-03 至 2026-08-09",
+        pax: 24,
+        operator: "林洁",
+        guide: "赵导",
+        createdBy: "林洁",
+        updatedBy: "负责人",
+        currency: "CNY",
+        notes: "含一晚特色餐升级，费用由组团社确认。",
+        checks: [true, true, true, false, true, true],
+        reimbursements: [
+          { id: crypto.randomUUID(), claimant: "赵导", category: "门票垫付", date: "2026-08-05", summary: "儿童临时补票", amount: 360, receipt: "无票说明", auditStatus: "需补充", reviewer: "审核", payStatus: "需确认", payer: "财务", note: "需计调确认是否向组团社加收", attachments: [], paymentAttachments: [] }
+        ],
+        lines: [
+          { id: crypto.randomUUID(), kind: "收入", category: "团费收入", summary: "全团地接款", amount: 158400, vendor: "Lion Travel", receipt: "无需票据", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "酒店", summary: "北京 6 晚亲子房", amount: 79200, vendor: "首都花园酒店", receipt: "已收票", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "餐饮", summary: "团队餐及烤鸭升级", amount: 33680, vendor: "京味楼", receipt: "已收票", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "交通", summary: "旅游车及机场接送", amount: 22000, vendor: "京旅车队", receipt: "已收票", status: "已审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "导游", summary: "导游服务费", amount: 5600, vendor: "赵导", receipt: "无票说明", status: "需确认" }
+        ]
+      }
+    ];
+
+    let currentUser = localStorage.getItem(currentUserKey) || teamMembers[0];
+    if (!teamMembers.includes(currentUser)) {
+      currentUser = teamMembers[0];
+      localStorage.setItem(currentUserKey, currentUser);
+    }
+    let state = loadState();
+    let activeId = state.activeId || state.tours[0].id;
+
+    function loadState() {
+      if (window.__SERVER_MODE__ && window.__SERVER_STATE__ && window.__SERVER_STATE__.tours && window.__SERVER_STATE__.tours.length) {
+        window.__SERVER_STATE__.tours.forEach(normalizeTourDates);
+        return window.__SERVER_STATE__;
+      }
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.tours && parsed.tours.length) {
+            parsed.tours.forEach(normalizeTourDates);
+            return parsed;
+          }
+        } catch (error) {}
+      }
+      demoTours.forEach(normalizeTourDates);
+      return { tours: demoTours, activeId: demoTours[0].id };
+    }
+
+    function saveState() {
+      state.activeId = activeId;
+      if (window.__SERVER_MODE__) {
+        fetch("/api/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state)
+        }).catch(() => {
+          localStorage.setItem(storageKey, JSON.stringify(state));
+        });
+        return;
+      }
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function activeTour() {
+      return state.tours.find(tour => tour.id === activeId) || state.tours[0];
+    }
+
+    function normalizeTourCode(code, startDate = "") {
+      const value = String(code || "");
+      if (value.startsWith("TB-")) return value;
+      const compactOld = value.match(/^IN-(\d{8})-(\d{3})$/);
+      if (compactOld) return `TB-${compactOld[1]}-${compactOld[2]}`;
+      const legacyDemo = value.match(/^IN-(\d{4})-(\d{2})(\d{2})$/);
+      if (legacyDemo) return `TB-${legacyDemo[1]}${legacyDemo[2]}${legacyDemo[3]}-001`;
+      const date = (startDate || todayISO()).replaceAll("-", "");
+      return value ? value.replace(/^IN-/, "TB-") : `TB-${date}-001`;
+    }
+
+    function touchTour(tour) {
+      tour.updatedBy = currentUser;
+      tour.updatedAt = new Date().toISOString();
+    }
+
+    function normalizeTourDates(tour) {
+      if ((!tour.startDate || !tour.endDate) && tour.dateRange) {
+        const dates = tour.dateRange.match(/\d{4}-\d{2}-\d{2}/g) || [];
+        tour.startDate = tour.startDate || dates[0] || "";
+        tour.endDate = tour.endDate || dates[1] || "";
+      }
+      syncDateRange(tour);
+      if (!Array.isArray(tour.reimbursements)) tour.reimbursements = [];
+      if (Array.isArray(tour.lines)) {
+        tour.lines.forEach(line => {
+          if (line.category === "规划师") line.category = "导游";
+          if (typeof line.summary === "string") line.summary = line.summary.replaceAll("规划师", "导游");
+        });
+      }
+      tour.reimbursements.forEach(item => normalizeReimbursement(item));
+      if (!Array.isArray(tour.checks)) tour.checks = [];
+      while (tour.checks.length < checklistItems.length) tour.checks.push(false);
+      tour.code = normalizeTourCode(tour.code, tour.startDate);
+      tour.createdBy = tour.createdBy || currentUser || teamMembers[0];
+      tour.updatedBy = tour.updatedBy || tour.createdBy;
+    }
+
+    function normalizeReimbursement(item) {
+      item.auditStatus = item.auditStatus || (item.payStatus === "已付款" ? "审核通过" : "待审核");
+      item.reviewer = item.reviewer || "审核";
+      item.payer = item.payer || "财务";
+      item.reviewedAt = item.reviewedAt || "";
+      item.paidAt = item.paidAt || "";
+      if (!Array.isArray(item.attachments)) item.attachments = [];
+      if (!Array.isArray(item.paymentAttachments)) item.paymentAttachments = [];
+      if (typeof item.note === "string") item.note = item.note.replaceAll("规划师", "导游");
+    }
+
+    function syncDateRange(tour) {
+      if (tour.startDate && tour.endDate) {
+        tour.dateRange = `${tour.startDate} 至 ${tour.endDate}`;
+      } else if (tour.startDate) {
+        tour.dateRange = tour.startDate;
+      } else {
+        tour.dateRange = "";
+      }
+    }
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function generateTourCode(tour = {}) {
+      const date = (tour.startDate || todayISO()).replaceAll("-", "");
+      const prefix = `TB-${date}-`;
+      const maxSeq = state.tours.reduce((max, item) => {
+        if (item.id === tour.id || !String(item.code || "").startsWith(prefix)) return max;
+        const seq = Number(String(item.code).slice(prefix.length));
+        return Number.isFinite(seq) ? Math.max(max, seq) : max;
+      }, 0);
+      return `${prefix}${String(maxSeq + 1).padStart(3, "0")}`;
+    }
+
+    function money(value, currency = activeTour().currency) {
+      return new Intl.NumberFormat("zh-CN", {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0
+      }).format(Number(value) || 0);
+    }
+
+    function calc(tour) {
+      const income = tour.lines.filter(line => line.kind === "收入").reduce((sum, line) => sum + Number(line.amount || 0), 0);
+      const cost = tour.lines.filter(line => line.kind === "成本").reduce((sum, line) => sum + Number(line.amount || 0), 0);
+      const profit = income - cost;
+      const rate = income ? profit / income : 0;
+      const perPax = tour.pax ? profit / Number(tour.pax) : 0;
+      return { income, cost, profit, rate, perPax };
+    }
+
+    function calcReimbursements(tour) {
+      const items = tour.reimbursements || [];
+      const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const paid = items.filter(item => item.payStatus === "已付款").reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const pending = items.filter(item => item.payStatus !== "已付款" && item.payStatus !== "驳回").reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const missingReceipts = items.filter(item => ["待补票", "无票说明"].includes(item.receipt));
+      const pendingAudit = items.filter(item => item.auditStatus !== "审核通过" && item.auditStatus !== "驳回");
+      const missingProofs = items.filter(item => !item.attachments || item.attachments.length === 0);
+      const missingPaymentProofs = items.filter(item => item.payStatus === "已付款" && (!item.paymentAttachments || item.paymentAttachments.length === 0));
+      return { total, paid, pending, count: items.length, missingReceipts, pendingAudit, missingProofs, missingPaymentProofs };
+    }
+
+    function audit(tour) {
+      const numbers = calc(tour);
+      const reimburse = calcReimbursements(tour);
+      const issues = [];
+      const missingReceipts = tour.lines.filter(line => line.kind === "成本" && ["待补票", "无票说明"].includes(line.receipt));
+      const pending = tour.lines.filter(line => line.status !== "已审核");
+      const emptyVendor = tour.lines.filter(line => line.kind === "成本" && !line.vendor.trim());
+      const largeItems = tour.lines.filter(line => line.kind === "成本" && Number(line.amount) > numbers.income * 0.35 && numbers.income > 0);
+      const pendingReimbursements = (tour.reimbursements || []).filter(item => item.payStatus !== "已付款" && item.payStatus !== "驳回");
+      const confirmReimbursements = (tour.reimbursements || []).filter(item => item.payStatus === "需确认" || item.auditStatus === "需补充");
+      const unchecked = checklistItems.filter((_, index) => !tour.checks[index]);
+
+      if (numbers.profit < 0) {
+        issues.push({ level: "bad", title: "毛利为负", text: `当前亏损 ${money(Math.abs(numbers.profit), tour.currency)}，建议暂停结算并复核报价、免单和现付项目。` });
+      } else if (numbers.rate < 0.08) {
+        issues.push({ level: "warn", title: "毛利率偏低", text: `当前毛利率 ${(numbers.rate * 100).toFixed(1)}%，需要负责人补充低毛利原因。` });
+      } else {
+        issues.push({ level: "good", title: "利润表现正常", text: `当前毛利率 ${(numbers.rate * 100).toFixed(1)}%，人均毛利 ${money(numbers.perPax, tour.currency)}。` });
+      }
+
+      if (missingReceipts.length) {
+        issues.push({ level: "warn", title: "票据仍需处理", text: `${missingReceipts.length} 笔成本票据未完整闭环，涉及 ${missingReceipts.map(line => line.category).join("、")}。` });
+      }
+
+      if (pending.length) {
+        issues.push({ level: "warn", title: "存在待审核明细", text: `${pending.length} 笔明细状态不是“已审核”，请逐项确认金额和附件。` });
+      }
+
+      if (emptyVendor.length) {
+        issues.push({ level: "bad", title: "供应商信息缺失", text: `${emptyVendor.length} 笔成本没有供应商或收款人，财务无法准确付款归档。` });
+      }
+
+      if (largeItems.length) {
+        issues.push({ level: "warn", title: "大额成本需复核", text: `${largeItems.map(line => `${line.category}${money(line.amount, tour.currency)}`).join("、")} 占比较高。` });
+      }
+
+      if (reimburse.pending > 0) {
+        issues.push({ level: "warn", title: "完团报销待处理", text: `${pendingReimbursements.length} 笔报销尚未付款或确认，待处理金额 ${money(reimburse.pending, tour.currency)}。` });
+      }
+
+      if (reimburse.missingReceipts.length) {
+        issues.push({ level: "warn", title: "报销票据未齐", text: `${reimburse.missingReceipts.length} 笔完团报销需要补票或说明。` });
+      }
+
+      if (reimburse.pendingAudit.length) {
+        issues.push({ level: "warn", title: "报销审核未完成", text: `${reimburse.pendingAudit.length} 笔完团报销尚未审核通过。` });
+      }
+
+      if (reimburse.missingProofs.length) {
+        issues.push({ level: "warn", title: "报销附件缺失", text: `${reimburse.missingProofs.length} 笔完团报销还没有上传发票或付款截图。` });
+      }
+
+      if (reimburse.missingPaymentProofs.length) {
+        issues.push({ level: "warn", title: "转账截图缺失", text: `${reimburse.missingPaymentProofs.length} 笔已付款报销还没有上传转账成功截图。` });
+      }
+
+      if (confirmReimbursements.length) {
+        issues.push({ level: "bad", title: "报销需负责人确认", text: `${confirmReimbursements.map(item => `${item.claimant || "未填报销人"}-${item.category}`).join("、")} 需要确认后才能付款。` });
+      }
+
+      if (unchecked.length) {
+        issues.push({ level: "warn", title: "报账清单未完成", text: `还有 ${unchecked.length} 项资料未勾选完成。` });
+      }
+
+      if (issues.length === 1 && issues[0].level === "good") {
+        issues.push({ level: "good", title: "可进入结算", text: "未发现阻断项，可打印审核单交财务复核。" });
+      }
+
+      return issues;
+    }
+
+    function riskLevel(issues) {
+      if (issues.some(item => item.level === "bad")) return { text: "高风险", className: "bad" };
+      if (issues.some(item => item.level === "warn")) return { text: "需补充", className: "warn" };
+      return { text: "可结算", className: "" };
+    }
+
+    function render() {
+      const tour = activeTour();
+      const numbers = calc(tour);
+      const issues = audit(tour);
+      const risk = riskLevel(issues);
+
+      document.getElementById("pageTitle").textContent = `${tour.code} · ${tour.name}`;
+      document.getElementById("pageSub").innerHTML = `经办：${escapeHtml(tour.createdBy || "未记录")}　最后修改：${escapeHtml(tour.updatedBy || "未记录")}　录入后自动核算毛利、票据缺口、完团报销与审核结论。`;
+      document.getElementById("statusTag").textContent = risk.text;
+      document.getElementById("statusTag").className = `tag ${risk.className}`;
+      document.getElementById("riskTag").textContent = risk.text;
+      document.getElementById("riskTag").className = `tag ${risk.className}`;
+
+      renderUserLogin();
+      renderTourList();
+      bindTourFields(tour);
+      renderMetrics(tour, numbers);
+      renderLines(tour);
+      renderReimbursements(tour);
+      renderAudit(issues);
+      renderChecklist(tour);
+      saveState();
+    }
+
+    function refreshSummary(tour) {
+      const numbers = calc(tour);
+      const issues = audit(tour);
+      const risk = riskLevel(issues);
+      document.getElementById("pageTitle").textContent = `${tour.code} · ${tour.name}`;
+      document.getElementById("pageSub").innerHTML = `经办：${escapeHtml(tour.createdBy || "未记录")}　最后修改：${escapeHtml(tour.updatedBy || "未记录")}　录入后自动核算毛利、票据缺口、完团报销与审核结论。`;
+      document.getElementById("statusTag").textContent = risk.text;
+      document.getElementById("statusTag").className = `tag ${risk.className}`;
+      document.getElementById("riskTag").textContent = risk.text;
+      document.getElementById("riskTag").className = `tag ${risk.className}`;
+      renderMetrics(tour, numbers);
+      renderReimbursementMetrics(tour);
+      renderAudit(issues);
+      updateTourListLabels();
+      saveState();
+    }
+
+    function renderUserLogin() {
+      const select = document.getElementById("currentUser");
+      select.innerHTML = teamMembers.map(member => `<option value="${escapeHtml(member)}" ${member === currentUser ? "selected" : ""}>${escapeHtml(member)}</option>`).join("");
+      select.onchange = () => {
+        currentUser = select.value;
+        localStorage.setItem(currentUserKey, currentUser);
+        document.getElementById("userHint").textContent = `${currentUser} 的修改会记录到当前团。`;
+      };
+      document.getElementById("userHint").textContent = `${currentUser} 的修改会记录到当前团。`;
+    }
+
+    function updateTourListLabels() {
+      document.querySelectorAll(".tour-item").forEach((button, index) => {
+        const tour = state.tours[index];
+        if (!tour) return;
+        const spans = button.querySelectorAll("span");
+        const code = button.querySelector("strong");
+        if (code) code.textContent = tour.code;
+        if (spans[0]) spans[0].textContent = tour.name;
+        if (spans[1]) spans[1].textContent = `${money(calc(tour).profit, tour.currency)} 毛利`;
+      });
+    }
+
+    function renderTourList() {
+      const list = document.getElementById("tourList");
+      list.innerHTML = "";
+      state.tours.forEach(tour => {
+        const numbers = calc(tour);
+        const btn = document.createElement("button");
+        btn.className = `tour-item ${tour.id === activeId ? "active" : ""}`;
+        btn.innerHTML = `<strong>${tour.code}</strong><span>${tour.name}</span><span>${money(numbers.profit, tour.currency)} 毛利</span>`;
+        btn.addEventListener("click", () => {
+          activeId = tour.id;
+          render();
+        });
+        list.appendChild(btn);
+      });
+    }
+
+    function bindTourFields(tour) {
+      normalizeTourDates(tour);
+      const fields = ["code", "name", "market", "startDate", "endDate", "pax", "operator", "guide", "currency", "notes"];
+      const ids = {
+        code: "tourCode",
+        name: "tourName",
+        market: "market",
+        startDate: "startDate",
+        endDate: "endDate",
+        pax: "pax",
+        operator: "operator",
+        guide: "guide",
+        currency: "currency",
+        notes: "notes"
+      };
+      fields.forEach(field => {
+        const input = document.getElementById(ids[field]);
+        input.value = tour[field] ?? "";
+        input.oninput = () => {
+          tour[field] = field === "pax" ? Number(input.value) : input.value;
+          if (field === "startDate" || field === "endDate") syncDateRange(tour);
+          touchTour(tour);
+          refreshSummary(tour);
+        };
+        input.onchange = () => {
+          tour[field] = field === "pax" ? Number(input.value) : input.value;
+          if (field === "startDate" || field === "endDate") syncDateRange(tour);
+          touchTour(tour);
+          refreshSummary(tour);
+        };
+      });
+      document.getElementById("autoCodeBtn").onclick = () => {
+        tour.code = generateTourCode(tour);
+        touchTour(tour);
+        document.getElementById("tourCode").value = tour.code;
+        render();
+      };
+    }
+
+    function renderMetrics(tour, numbers) {
+      document.getElementById("totalIncome").textContent = money(numbers.income, tour.currency);
+      document.getElementById("totalCost").textContent = money(numbers.cost, tour.currency);
+      document.getElementById("grossProfit").textContent = money(numbers.profit, tour.currency);
+      document.getElementById("profitPerPax").textContent = money(numbers.perPax, tour.currency);
+      document.getElementById("profitMetric").className = `metric ${numbers.profit < 0 ? "bad" : "good"}`;
+    }
+
+    function selectHtml(options, current) {
+      return options.map(option => `<option value="${escapeHtml(option)}" ${option === current ? "selected" : ""}>${escapeHtml(option)}</option>`).join("");
+    }
+
+    function renderLines(tour) {
+      const body = document.getElementById("lineBody");
+      body.innerHTML = "";
+      tour.lines.forEach(line => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><select data-field="kind">${selectHtml(["收入", "成本"], line.kind)}</select></td>
+          <td><select data-field="category">${selectHtml(categories, line.category)}</select></td>
+          <td><input data-field="summary" value="${escapeAttr(line.summary)}"></td>
+          <td><input data-field="amount" type="number" min="0" step="0.01" value="${escapeAttr(line.amount)}"></td>
+          <td><input data-field="vendor" value="${escapeAttr(line.vendor)}"></td>
+          <td><select data-field="receipt">${selectHtml(receiptOptions, line.receipt)}</select></td>
+          <td><select data-field="status">${selectHtml(statusOptions, line.status)}</select></td>
+          <td><div class="row-actions"><button class="icon-btn" title="复制">⧉</button><button class="icon-btn danger" title="删除">×</button></div></td>
+        `;
+        tr.querySelectorAll("[data-field]").forEach(input => {
+          input.addEventListener("input", () => {
+            const field = input.dataset.field;
+            line[field] = field === "amount" ? Number(input.value) : input.value;
+            touchTour(tour);
+            refreshSummary(tour);
+          });
+          input.addEventListener("change", () => {
+            const field = input.dataset.field;
+            line[field] = field === "amount" ? Number(input.value) : input.value;
+            touchTour(tour);
+            refreshSummary(tour);
+          });
+        });
+        tr.querySelector("[title='复制']").addEventListener("click", () => {
+          tour.lines.push({ ...line, id: crypto.randomUUID(), summary: `${line.summary} 副本` });
+          touchTour(tour);
+          render();
+        });
+        tr.querySelector("[title='删除']").addEventListener("click", () => {
+          tour.lines = tour.lines.filter(item => item.id !== line.id);
+          touchTour(tour);
+          render();
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    function renderReimbursementMetrics(tour) {
+      const summary = calcReimbursements(tour);
+      document.getElementById("reimburseTotal").textContent = money(summary.total, tour.currency);
+      document.getElementById("reimbursePaid").textContent = money(summary.paid, tour.currency);
+      document.getElementById("reimbursePending").textContent = money(summary.pending, tour.currency);
+      document.getElementById("reimburseCount").textContent = String(summary.count);
+      document.getElementById("reimbursePendingMetric").className = `metric ${summary.pending > 0 ? "bad" : "good"}`;
+    }
+
+    function attachmentHtml(item, field, label) {
+      const files = item[field] || [];
+      return `
+        <button class="mini-btn" type="button" data-upload="${field}">${label}</button>
+        <input class="hidden" type="file" accept="image/*" multiple data-file-input="${field}">
+        <div class="file-note">${files.length ? `${files.length} 张图片` : "未上传"}</div>
+        <div class="attachment-list">
+          ${files.map(file => `
+            <div class="attachment" title="${escapeAttr(file.name)}">
+              <img src="${escapeAttr(file.dataUrl)}" alt="${escapeAttr(file.name)}">
+              <button type="button" title="删除图片" data-delete-attachment="${field}" data-attachment-id="${escapeAttr(file.id)}">×</button>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function readFilesAsImages(files) {
+      return Promise.all(Array.from(files).map(file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          id: crypto.randomUUID(),
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          dataUrl: reader.result
+        });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      })));
+    }
+
+    function renderReimbursements(tour) {
+      if (!Array.isArray(tour.reimbursements)) tour.reimbursements = [];
+      renderReimbursementMetrics(tour);
+      const body = document.getElementById("reimbursementBody");
+      body.innerHTML = "";
+      tour.reimbursements.forEach(item => {
+        normalizeReimbursement(item);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input data-field="claimant" value="${escapeAttr(item.claimant)}" placeholder="报销人"></td>
+          <td><select data-field="category">${selectHtml(reimbursementCategories, item.category)}</select></td>
+          <td><input data-field="date" type="date" value="${escapeAttr(item.date)}"></td>
+          <td><input data-field="summary" value="${escapeAttr(item.summary)}" placeholder="费用摘要"></td>
+          <td><input data-field="amount" type="number" min="0" step="0.01" value="${escapeAttr(item.amount)}"></td>
+          <td><select data-field="receipt">${selectHtml(receiptOptions, item.receipt)}</select></td>
+          <td>
+            <select data-field="auditStatus">${selectHtml(reimbursementAuditOptions, item.auditStatus)}</select>
+            <select data-field="reviewer">${selectHtml(teamMembers, item.reviewer)}</select>
+          </td>
+          <td>
+            <select data-field="payStatus">${selectHtml(reimbursementStatusOptions, item.payStatus)}</select>
+            <select data-field="payer">${selectHtml(teamMembers, item.payer)}</select>
+          </td>
+          <td>
+            <div class="stack-actions">
+              ${attachmentHtml(item, "attachments", "上传发票/付款截图")}
+              ${attachmentHtml(item, "paymentAttachments", "上传转账成功图")}
+            </div>
+          </td>
+          <td><input data-field="note" value="${escapeAttr(item.note)}" placeholder="说明"></td>
+          <td>
+            <div class="stack-actions">
+              <button class="mini-btn" type="button" title="审核通过">通过</button>
+              <button class="mini-btn" type="button" title="标记付款">付款</button>
+              <div class="row-actions"><button class="icon-btn" title="复制报销">⧉</button><button class="icon-btn danger" title="删除报销">×</button></div>
+            </div>
+          </td>
+        `;
+        tr.querySelectorAll("[data-field]").forEach(input => {
+          input.addEventListener("input", () => {
+            const field = input.dataset.field;
+            item[field] = field === "amount" ? Number(input.value) : input.value;
+            if (field === "auditStatus" && item.auditStatus === "审核通过") {
+              item.reviewer = item.reviewer || currentUser;
+              item.reviewedAt = new Date().toISOString();
+            }
+            if (field === "payStatus" && item.payStatus === "已付款") {
+              item.payer = item.payer || currentUser;
+              item.paidAt = new Date().toISOString();
+            }
+            touchTour(tour);
+            refreshSummary(tour);
+          });
+          input.addEventListener("change", () => {
+            const field = input.dataset.field;
+            item[field] = field === "amount" ? Number(input.value) : input.value;
+            if (field === "auditStatus" && item.auditStatus === "审核通过") {
+              item.reviewer = item.reviewer || currentUser;
+              item.reviewedAt = new Date().toISOString();
+            }
+            if (field === "payStatus" && item.payStatus === "已付款") {
+              item.payer = item.payer || currentUser;
+              item.paidAt = new Date().toISOString();
+            }
+            touchTour(tour);
+            refreshSummary(tour);
+          });
+        });
+        tr.querySelectorAll("[data-upload]").forEach(button => {
+          button.addEventListener("click", () => {
+            tr.querySelector(`[data-file-input="${button.dataset.upload}"]`).click();
+          });
+        });
+        tr.querySelectorAll("[data-file-input]").forEach(input => {
+          input.addEventListener("change", async () => {
+            const field = input.dataset.fileInput;
+            const files = await readFilesAsImages(input.files);
+            item[field] = [...(item[field] || []), ...files];
+            touchTour(tour);
+            render();
+          });
+        });
+        tr.querySelectorAll("[data-delete-attachment]").forEach(button => {
+          button.addEventListener("click", () => {
+            const field = button.dataset.deleteAttachment;
+            item[field] = (item[field] || []).filter(file => file.id !== button.dataset.attachmentId);
+            touchTour(tour);
+            render();
+          });
+        });
+        tr.querySelector("[title='审核通过']").addEventListener("click", () => {
+          item.auditStatus = "审核通过";
+          item.reviewer = currentUser;
+          item.reviewedAt = new Date().toISOString();
+          touchTour(tour);
+          render();
+        });
+        tr.querySelector("[title='标记付款']").addEventListener("click", () => {
+          item.payStatus = "已付款";
+          item.payer = currentUser;
+          item.paidAt = new Date().toISOString();
+          touchTour(tour);
+          render();
+        });
+        tr.querySelector("[title='复制报销']").addEventListener("click", () => {
+          tour.reimbursements.push({
+            ...item,
+            id: crypto.randomUUID(),
+            summary: `${item.summary || "报销"} 副本`,
+            attachments: [...(item.attachments || [])],
+            paymentAttachments: [...(item.paymentAttachments || [])]
+          });
+          touchTour(tour);
+          render();
+        });
+        tr.querySelector("[title='删除报销']").addEventListener("click", () => {
+          tour.reimbursements = tour.reimbursements.filter(entry => entry.id !== item.id);
+          touchTour(tour);
+          render();
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    function renderAudit(issues) {
+      const list = document.getElementById("auditList");
+      list.innerHTML = "";
+      issues.forEach(issue => {
+        const item = document.createElement("div");
+        item.className = `audit-item ${issue.level}`;
+        item.innerHTML = `<strong>${escapeHtml(issue.title)}</strong>${escapeHtml(issue.text)}`;
+        list.appendChild(item);
+      });
+    }
+
+    function renderChecklist(tour) {
+      const list = document.getElementById("checkList");
+      list.innerHTML = "";
+      checklistItems.forEach((text, index) => {
+        const label = document.createElement("label");
+        label.className = "check";
+        label.innerHTML = `<input type="checkbox" ${tour.checks[index] ? "checked" : ""}><span>${escapeHtml(text)}</span>`;
+        label.querySelector("input").addEventListener("change", event => {
+          tour.checks[index] = event.target.checked;
+          touchTour(tour);
+          render();
+        });
+        list.appendChild(label);
+      });
+    }
+
+    function addTour() {
+      const id = crypto.randomUUID();
+      const tour = {
+        id,
+        code: "",
+        name: "新入境团队",
+        market: "",
+        startDate: todayISO(),
+        endDate: todayISO(),
+        dateRange: "",
+        pax: 0,
+        operator: currentUser,
+        guide: currentUser,
+        currency: "CNY",
+        notes: "",
+        createdBy: currentUser,
+        updatedBy: currentUser,
+        updatedAt: new Date().toISOString(),
+        checks: checklistItems.map(() => false),
+        reimbursements: [],
+        lines: [
+          { id: crypto.randomUUID(), kind: "收入", category: "团费收入", summary: "团费收入", amount: 0, vendor: "", receipt: "无需票据", status: "待审核" },
+          { id: crypto.randomUUID(), kind: "成本", category: "酒店", summary: "酒店成本", amount: 0, vendor: "", receipt: "待补票", status: "待审核" }
+        ]
+      };
+      tour.code = generateTourCode(tour);
+      syncDateRange(tour);
+      state.tours.unshift(tour);
+      activeId = id;
+      render();
+    }
+
+    function addReimbursement() {
+      const tour = activeTour();
+      if (!Array.isArray(tour.reimbursements)) tour.reimbursements = [];
+      tour.reimbursements.push({
+        id: crypto.randomUUID(),
+        claimant: tour.guide || "",
+        category: "交通垫付",
+        date: tour.endDate || todayISO(),
+        summary: "",
+        amount: 0,
+        receipt: "待补票",
+        auditStatus: "待审核",
+        reviewer: "审核",
+        payStatus: "待付款",
+        payer: "财务",
+        reviewedAt: "",
+        paidAt: "",
+        attachments: [],
+        paymentAttachments: [],
+        note: ""
+      });
+      touchTour(tour);
+      render();
+    }
+
+    function addLine() {
+      const tour = activeTour();
+      tour.lines.push({
+        id: crypto.randomUUID(),
+        kind: "成本",
+        category: "其他",
+        summary: "",
+        amount: 0,
+        vendor: "",
+        receipt: "待补票",
+        status: "待审核"
+      });
+      touchTour(tour);
+      render();
+    }
+
+    function download(name, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = name;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCsv() {
+      const tour = activeTour();
+      const header = ["团号", "团名", "经办人", "最后修改人", "模块", "类型/报销人", "类别", "日期", "摘要", "金额", "对象/备注", "票据", "状态", "审核人", "审核状态", "付款人", "附件数", "转账截图数"];
+      const rows = [
+        ...tour.lines.map(line => [tour.code, tour.name, tour.createdBy, tour.updatedBy, "收支明细", line.kind, line.category, "", line.summary, line.amount, line.vendor, line.receipt, line.status, "", "", "", "", ""]),
+        ...(tour.reimbursements || []).map(item => [tour.code, tour.name, tour.createdBy, tour.updatedBy, "完团报销", item.claimant, item.category, item.date, item.summary, item.amount, item.note, item.receipt, item.payStatus, item.reviewer, item.auditStatus, item.payer, (item.attachments || []).length, (item.paymentAttachments || []).length])
+      ];
+      const csv = [header, ...rows].map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(",")).join("\n");
+      download(`${tour.code}-报账明细.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+    }
+
+    function exportJson() {
+      download("入境游报账数据备份.json", JSON.stringify(state, null, 2), "application/json;charset=utf-8");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll("\n", " ");
+    }
+
+    document.getElementById("addTourBtn").addEventListener("click", addTour);
+    document.getElementById("addLineBtn").addEventListener("click", addLine);
+    document.getElementById("addReimbursementBtn").addEventListener("click", addReimbursement);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportCsv);
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+    document.getElementById("resetDemoBtn").addEventListener("click", () => {
+      localStorage.removeItem(storageKey);
+      state = { tours: structuredClone(demoTours), activeId: demoTours[0].id };
+      activeId = state.activeId;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
